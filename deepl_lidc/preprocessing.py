@@ -6,8 +6,8 @@ import os
 import numpy as np
 import pandas as pd
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+def sigmoid(x, alpha=1.0):
+    return 1 / (1 + np.exp(-alpha*x))
 
 def available_patients(path_scans):
     """
@@ -39,7 +39,7 @@ def prepare_label(path_raw_label, ids):
     df['num_nodules'] = df.groupby('patient_id')['nodule'].transform('nunique')
 
     # Apply the formula to compute 'target' for each row
-    df['target'] = sigmoid(df['num_nodules'] * (df['mean_malignancy'] / 2 - 1))
+    df['target'] = sigmoid(df['num_nodules'] * (df['mean_malignancy'] / 1.5 - 1), alpha=0.6)
 
     #drop the columns that are not needed anymore
     df = df.drop(columns=['nodule', 'annotation_id', 'malignancy', 'mean_malignancy', 'num_nodules'])
