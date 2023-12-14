@@ -2,4 +2,4 @@
 
 /data
 /notebooks
-/deepl_lidc/__pycache__
+*/__pycache__
