@@ -1,11 +1,14 @@
 """ 
-A module with functions for preprocessing the target data.
+A module with functions for preprocessing raw data.
 """
 
 import os
 import numpy as np
 import pandas as pd
+import pylidc as pl
+from pylidc.utils import consensus
 
+#target preprocessing
 def sigmoid(x, alpha=1.0):
     return 1 / (1 + np.exp(-alpha*x))
 
@@ -51,3 +54,39 @@ def prepare_label(path_raw_label, ids):
     #save the dataframe to a csv file where the raw csv file is located
     save_path = os.path.dirname(path_raw_label)
     df.to_csv(os.path.join(save_path, 'target.csv'), index=False)
+    
+#Xs preprocessing
+
+def extract_nodules(patient_id):
+    """Extracts the nodules from a given patient.
+
+    Args:
+        patient_id (str): id of the patient of the form 'LIDC-IDRI-XXXX'
+    
+    returns:
+        nodules (dictionary): dictionary of the form {'LIDC-IDRI-XXXX-nodule_id': nodule}
+        nodule is a 3d numpy array
+        nodule_id is just a number from 1 to the number of nodules in the patient
+    """
+    
+    # Query for a scan, and convert it to an array volume (512 x 512 x n_slices).
+    scan = pl.query(pl.Scan).filter(pl.Scan.patient_id == patient_id).first()
+    vol = scan.to_volume()
+    #minimum value of the volume which corresponds to the background
+    vmin = -2048
+
+    # Cluster the annotations for the scan
+    nods = scan.cluster_annotations()
+    num_nods = len(nods)
+
+    #initialize the dictionary of nodules with filled keys
+    nodules = {patient_id + '-' + str(i): None for i in range(1, num_nods + 1)}
+    # Perform a consensus consolidation and 50% agreement level.
+    for i, anns in enumerate(nods, start=1):
+        cmask, cbbox = consensus(anns, clevel=0.5, ret_masks=False)
+        minivol = vol[cbbox]
+        filtered_vol = np.where(cmask == 1, minivol, vmin)
+        nodules[patient_id + '-' + str(i)] = filtered_vol
+
+    return nodules
+    
