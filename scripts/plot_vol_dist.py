@@ -16,7 +16,7 @@ n_5000 = len(mean_volume[mean_volume < 5000])
 #number of nodules with volume < 2000
 n_2000 = len(mean_volume[mean_volume < 2000])
 #add text in the upper right corner with the number of nodules
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(8, 6))
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 3))
 
 # Plot the full distribution
 ax1.hist(mean_volume, density=False, bins=100)
