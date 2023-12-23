@@ -19,8 +19,8 @@ def available_patients(path_scans):
     ids = [id for id in os.listdir(path_scans) if id != 'LICENSE']
     return ids
 
-def prepare_label(path_raw_label, ids):
-    """function for preparing the label data.
+def prepare_patient_label(path_raw_label, ids):
+    """Prepares the target for each patient and saves it to a csv file.
 
     Args:
         path_raw_label (string): path to the raw label csv file
@@ -53,7 +53,35 @@ def prepare_label(path_raw_label, ids):
     
     #save the dataframe to a csv file where the raw csv file is located
     save_path = os.path.dirname(path_raw_label)
-    df.to_csv(os.path.join(save_path, 'target.csv'), index=False)
+    df.to_csv(os.path.join(save_path, 'patient_target.csv'), index=False)
+    
+def prepare_nodule_label(path_raw_label):
+    
+    """prepares the target for each nodule and saves it to a csv file
+        in the same directory as the raw label csv file.
+    
+    Args:
+        path_raw_label (string): path to the raw label csv file
+    """
+    
+    #read the raw label csv file
+    df = pd.read_csv(path_raw_label)
+    
+    df["mean_malignancy"] = df.groupby(['patient_id', 'nodule'])['malignancy'].transform('mean')
+    #round the mean_malignancy to the nearest integer
+    df['mean_malignancy'] = df['mean_malignancy'].round().astype(int)
+    #nodule_id is of the form 'LIDC-IDRI-XXXX-nodule_id',
+    #where id is just a number from 1 to the number of nodules in the patient
+    #kept in nodule column.
+    df['nodule_id'] = df['patient_id'] + '-' + df['nodule'].astype(str)
+    
+    #define a new dataframe with the columns that are needed
+    #mean_malignancy and nodule_id. drop duplicates
+    result = df[['nodule_id', 'mean_malignancy']].drop_duplicates()
+    
+    #save the dataframe to a csv file where the raw csv file is located
+    save_path = os.path.dirname(path_raw_label)
+    result.to_csv(os.path.join(save_path, 'nodule_target.csv'), index=False)
     
 #Xs preprocessing
 
