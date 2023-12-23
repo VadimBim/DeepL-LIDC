@@ -36,9 +36,19 @@ pip install -e .
 
 `.` indicates that we’re installing the package in the current directory. `-e` indicates that the package should be editable.
 
-## ⚠️ Pylidc is no more mantained
+## Dependencies
+
+- Pylidc ⚠️ (is no more mantained)
 
 Based on the activity of official `Pylidc` repository <https://github.com/notmatthancock/pylidc>, it looks like it is no more mantained. To fix it, we can use a more updated version where `numpy` is upgraded: <https://github.com/vankhoa21991/pylidc>. Clone this repository using following command:
+
+- Pytorch
+
+Taking into consideration that we will work only on our local machines, we will install *CPU-only* version
+
+```bash
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+```
 
 ```bash
 git clone https://github.com/vankhoa21991/pylidc
