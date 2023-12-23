@@ -59,8 +59,16 @@ git clone https://github.com/vankhoa21991/pylidc
 ```bash
 pip install .
 ```
-
 when you are in corresponding directory.
+
+- Pytorch
+
+Taking into consideration that we will work only on our local machines, we will install *CPU-only* version
+
+```bash
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+```
+
 
 ## Contributing
 
