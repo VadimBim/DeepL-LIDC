@@ -13,23 +13,21 @@ def pad_image(input_tensor, padding_value, target_size):
     Args:
         input_tensor (torch.tensor): tensor to pad
         padding_value (float): value to pad with
-        target_size (int): target size of the returned tensor
+        target_size (tuple): target size of the returned tensor
 
     Returns:
         torch.tensor: padded tensor
     """
+    current_size = list(input_tensor.shape)
+    padding_needed = [target_size[i] - current_size[i] for i in range(len(current_size))]
     
-    current_size = input_tensor.shape[0]
-    padding_needed = target_size - current_size
-    
-    if padding_needed <= 0:
+    if all(padding <= 0 for padding in padding_needed):
         return input_tensor
     
-    padding_before = padding_needed // 2
-    padding_after = padding_needed - padding_before
+    padding_before = [padding // 2 for padding in padding_needed]
+    padding_after = [padding - padding_before[i] for i, padding in enumerate(padding_needed)]
     
-    padded_tensor = F.pad(input_tensor, (padding_before, padding_after, padding_before, padding_after), value=padding_value)
-    
+    padded_tensor = F.pad(input_tensor, (padding_before[1], padding_after[1], padding_before[0], padding_after[0]), value=padding_value)
     return padded_tensor
 
 def normalize(tensor):
@@ -60,8 +58,10 @@ class NoduleDataset(Dataset):
         nodule = torch.from_numpy(np.load(nodule_path))
         #extract middle slice of the nodule
         image = nodule[:, :, nodule.shape[2]//2]
-        paded_image = pad_image(image, image.min(), 64)
-        label = self.image_targets.iloc[index, 1]
+        target_size = (64, 64)
+        paded_image = pad_image(image, image.min(), target_size)
+        label = self.image_targets.iloc[index, 1] - 1 # 1-5 -> 0-4, necessary for one_hot encoding
+        label = torch.tensor(label)
         
         if self.transform:
             paded_image = self.transform(paded_image)
