@@ -67,11 +67,8 @@ class NoduleDataset(Dataset):
         df = pd.read_csv(target_file)
         image_targets = dict(zip(df.iloc[:, 0], df.iloc[:, 1]))
         ##read names of all nodules without extentions
-        available_nodules=[nodule.split('.')[0] for nodule in os.listdir(nodule_dir)]
-        
-   
+        available_nodules=[nodule.split('.')[0] for nodule in sorted(os.listdir(nodule_dir))]
 
-        '''version 2: replace '_0' -> '' '''
         image_targets=repair_dict_names(image_targets)
 
         #create an array with tuples (image,label) where image and label are tensors
