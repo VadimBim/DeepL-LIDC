@@ -91,6 +91,7 @@ class NoduleDataset(Dataset):
                 paded_image = self.transform(paded_image)
             if self.target_transform:
                 label = self.target_transform(label, num_classes=5)
+                label = label.type(torch.float32)
 
             self.res.append((paded_image, label))
 
