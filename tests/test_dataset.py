@@ -32,7 +32,11 @@ def test_nodule_dataset():
     target_file = "/home/vadim/Development/Projects/DeepL-LIDC/data/nodule_target.csv"
     nodule_dir = "/home/vadim/Development/Projects/DeepL-LIDC/data/nodules"
     dataset = NoduleDataset(target_file, nodule_dir)
-    assert len(dataset) == 2624
+    assert len(dataset) == 2616
+    
+    #Check if there are no images if nan
+    for i in range(len(dataset)):
+        assert not torch.isnan(dataset[i][0]).any()
     
     # Test case 2: Check if the dataset returns the correct sample
     sample_idx = 0

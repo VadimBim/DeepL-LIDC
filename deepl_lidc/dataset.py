@@ -79,6 +79,9 @@ class NoduleDataset(Dataset):
             nodule = torch.from_numpy(np.load(nodule_path))
             #extract middle slice of the nodule
             image = nodule[:, :, nodule.shape[2]//2]
+            #check if the image is empty (all values are equal to each other)
+            if torch.allclose(image, image[0, 0]):
+                continue
             paded_image = pad_image(image, image.min(), target_size)
 
             label = image_targets[x] - 1 # 1-5 -> 0-4, necessary for one_hot encoding
