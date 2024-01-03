@@ -73,7 +73,7 @@ class NoduleDataset(Dataset):
 
         #create an array with tuples (image,label) where image and label are tensors
         self.res = []
-        target_size = (64, 64) ##size of tensor
+        target_size = (84, 84) ##size of tensor
         for x in available_nodules:
             nodule_path = os.path.join(self.nodule_dir, x + '.npy')
             nodule = torch.from_numpy(np.load(nodule_path))
