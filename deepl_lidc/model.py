@@ -1,4 +1,4 @@
-from deepl_lidc import dataset
+from deepl_lidc import dataset,patient_info
 from torch.utils.data import DataLoader
 import torch
 import torch.nn as nn
@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
 import numpy as np
-
 
 
 # Path to the data directory
@@ -42,7 +41,13 @@ class Net(nn.Module):
         return x
 
 lidc_dataset = dataset.NoduleDataset(PATH_target,PATH_scans)
-print(f"Example of single row: {lidc_dataset[0]}")
+#lidc_dataset.undersampling_majority_labels()
+#lidc_dataset.oversampling_minority_labels()
+indexes_rotated = lidc_dataset.add_synthetic_by_rotations(700)
+indexes_flips = lidc_dataset.add_synthetic_by_flips(1006)
+
+#patient_info.plot_images_by_indexes(lidc_dataset,indexes_rotated)
+patient_info.plot_images_by_indexes(lidc_dataset,indexes_flips)
 
 ##split data:
 train_size = 0.8
@@ -62,7 +67,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 
 
-num_epochs=300
+num_epochs=35
 for epoch in range(num_epochs):
     model.train()
     for batch in train_loader:
@@ -86,9 +91,11 @@ for epoch in range(num_epochs):
             val_loss += loss.item()
             _, predicted = outputs.max(1)
             total += targets.size(0)
-            if targets.dim() > 1:
-              targets = torch.argmax(targets, dim=1)
-            correct += (predicted == targets).sum().item()
+            _, expected_labels = targets.max(1)
+            for k in range(targets.size(0)):
+             
+                if predicted[k]==expected_labels[k]:
+                    correct+=1
 
     average_val_loss = val_loss / len(val_loader)
     accuracy = correct / total
