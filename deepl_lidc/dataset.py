@@ -100,11 +100,72 @@ class NoduleDataset(Dataset):
     
     def __getitem__(self, index) -> tuple:
         return self.res[index]
-            
+    
+    @property
+    def labels(self):
+        return [label for _, label in self.res]
+    
+    def get_label_by_index(self,index):
+        return torch.argmax(self.res[index][1]).item()
+    
+    def get_index_name(self,index):
+        return self.available_nodules[index]
+    
+    def add_synthetic_by_rotations(self,target_count,rotations=[1,2,3]):
+        first_rotated_indexes=[] #array with indexes of first data that was rotated. (used to debuging)
+        label_counts = [0,0,0,0,0]
+        for data in self.res:
+            label = torch.argmax(data[1]).item()
+            label_counts[label]+=1
+        print(f"Label counts in dataset befor adding synthetic data by rotations: {label_counts}")
 
+        for i in range(len(self.res)):
+            label = self.get_label_by_index(i)
+            if label_counts[label] < target_count:
+                self.res.append(self.res[i])
+                if first_rotated_indexes==[]:
+                    first_rotated_indexes=[i,len(self.res),len(self.res)+1, len(self.res)+2]
+                for deg in rotations:
+                    rotated= np.rot90(self.res[i][0],k=deg)
+                    self.res.append((torch.tensor(rotated.copy()),self.res[i][1]))
+                label_counts[label]+=len(rotations)
+        print(f"Label counts in dataset after adding synthetic data by rotations: {label_counts}")
 
-
-
+        return first_rotated_indexes
+    
+    def add_synthetic_by_flips(self, target_count, flips=['horizontal', 'vertical', 'center']):
+        first_flipped_indexes = []  #array with indexes of first data that was rotated. (used to debuging)  ``
+        label_counts = [0, 0, 0, 0, 0]
         
+        for data in self.res:
+            label = torch.argmax(data[1])
+            label_counts[label] += 1
         
+        print(f"Label counts in dataset before adding synthetic data by flips: {label_counts}")
 
+        for i in range(len(self.res)):
+            label = self.get_label_by_index(i)
+            if label_counts[label] < target_count:
+                self.res.append(self.res[i])
+                if not first_flipped_indexes:
+                    first_flipped_indexes = [i, len(self.res), len(self.res) + 1, len(self.res) + 2]
+                
+                for flip_type in flips:
+                    if flip_type == 'horizontal':
+                        flipped = np.fliplr(self.res[i][0])
+                    elif flip_type == 'vertical':
+                        flipped = np.flipud(self.res[i][0])
+                    elif flip_type == 'center':
+                        flipped = np.flipud(np.fliplr(self.res[i][0]))
+                 #   elif flip_type == 'diagonal':
+                #        flipped = np.transpose(self.res[i][0])
+                    else:
+                        raise ValueError(f"Unsupported flip type: {flip_type}")
+                    
+                    self.res.append((torch.tensor(flipped.copy()), self.res[i][1]))
+                
+                label_counts[label] += len(flips)
+
+        print(f"Label counts in dataset after adding synthetic data by flips: {label_counts}")
+        
+        return first_flipped_indexes
