@@ -23,7 +23,7 @@ conda env create --file environment.yml
 It is recommended to edit the `environment.yml` mannualy when new packages are added, or unnecesary packages are removed to track updates with version control. To update the environment run:
 
 ```bash
-conda env update --file environment.yml --prune
+conda env update --file environment.yml
 ```
 
 More info can be found here: <https://carpentries-incubator.github.io/introduction-to-conda-for-data-scientists/04-sharing-environments/index.html>
