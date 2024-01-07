@@ -45,7 +45,7 @@ def test_nodule_dataset():
     # Test case 2: Check if the dataset returns the correct sample
     sample_idx = 0
     image, label = dataset[sample_idx]
-    expected_label = torch.tensor([0, 0, 0, 0, 1])
+    expected_label = torch.tensor([0., 0., 0., 0., 1.0])
     assert image.shape == torch.Size([84, 84])
     assert torch.allclose(label, expected_label)
     
@@ -66,5 +66,5 @@ def test_nodule_dataset():
         plt.axis("off")
         plt.imshow(image, cmap="gray")
     figure.suptitle(f"First 9 samples of the dataset.")
-    plt.savefig('/home/vadim/Development/Projects/DeepL-LIDC/results/nodules.png', dpi=200)
+    # plt.savefig('/home/vadim/Development/Projects/DeepL-LIDC/results/nodules.png', dpi=200)
     plt.show()
